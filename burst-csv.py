@@ -21,10 +21,13 @@ def readCsv(file):
           artists[artist].append(title)
   return artists
 
-artists = readCsv('spotlight.csv')
-print "{0} artists".format(len(artists))
+def dumpArtists(file):
+  artists = readCsv(file)
+  print "{0} artists".format(len(artists))
 
-for artist in artists:
-  print "Artist: {0}".format(artist)
-  for title in artists[artist]:
-    print "    {0}".format(title)
+  for artist in artists:
+    print "Artist: {0}".format(artist)
+    for title in artists[artist]:
+      print "    {0}".format(title)
+
+dumpArtists('spotlight.csv')
