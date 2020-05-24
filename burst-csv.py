@@ -9,8 +9,8 @@ def removePrefix(text, prefix):
     text = re.sub('^' + re.escape(prefix), '', text).strip()
   return text
 
-def readCsv(file):
-  artists = {}
+def readCatalog(file):
+  catalog = {}
   with open(file, 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',', quotechar='"')
     for row in reader:
@@ -19,19 +19,19 @@ def readCsv(file):
       title = removePrefix(title, artist + ' - ')
       title = removePrefix(title, artist + ' ')
       if len(artist) > 0 and len(title) > 0:
-        if not artist in artists:
-          artists[artist] = []
-        if not title in artists[artist]:
-          artists[artist].append(title)
-  return artists
+        if not artist in catalog:
+          catalog[artist] = []
+        if not title in catalog[artist]:
+          catalog[artist].append(title)
+  return catalog
 
-def dumpArtists(file):
-  artists = readCsv(file)
-  print "{0} artists".format(len(artists))
+def dumpArtists(catalog):
+  print "{0} artists".format(len(catalog))
 
-  for artist in artists:
+  for artist in catalog:
     print "Artist: {0}".format(artist)
-    for title in artists[artist]:
+    for title in catalog[artist]:
       print "    {0}".format(title)
 
-dumpArtists('spotlight.csv')
+catalog = readCatalog('spotlight.csv')
+dumpArtists(catalog)
