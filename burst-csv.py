@@ -1,15 +1,30 @@
 import csv
+import re
 
-artists = {}
+def squishSpaces(text):
+  return re.sub(' +', ' ', text)
 
-i = 0
-with open('spotlight.csv', 'r') as csvfile:
-  reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-  for row in reader:
-	title = row[0]
-	artist = row[1]
-	if not artist in artists:
-		artists[artist] = []
-	artists[artist].append(title)
+def readCsv(file):
+  artists = {}
 
+  with open(file, 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+    for row in reader:
+      title = squishSpaces(row[0]).strip()
+      artist = squishSpaces(row[1]).strip()
+      if title.startswith(artist + ' - '):
+        title = title.replace(artist + ' - ', '').strip()
+      if len(artist) > 0 and len(title) > 0:
+        if not artist in artists:
+          artists[artist] = []
+        if not title in artists[artist]:
+          artists[artist].append(title)
+  return artists
+
+artists = readCsv('spotlight.csv')
 print "{0} artists".format(len(artists))
+
+for artist in artists:
+  print "Artist: {0}".format(artist)
+  for title in artists[artist]:
+    print "    {0}".format(title)
