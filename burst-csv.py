@@ -1,5 +1,7 @@
 import csv
+import os
 import re
+import shutil
 
 def squishSpaces(text):
   return re.sub(' +', ' ', text)
@@ -8,6 +10,11 @@ def removePrefix(text, prefix):
   if text.startswith(prefix):
     text = re.sub('^' + re.escape(prefix), '', text).strip()
   return text
+
+def mergeTitles(catalog, artist, titleList):
+  for title in titleList:
+    if not title in catalog[artist]:
+      catalog[artist].append(title)
 
 def readCatalog(file):
   catalog = {}
@@ -25,13 +32,29 @@ def readCatalog(file):
           catalog[artist].append(title)
   return catalog
 
-def dumpArtists(catalog):
-  print "{0} artists".format(len(catalog))
-
+def mergeArtists(catalog):
   for artist in catalog:
-    print "Artist: {0}".format(artist)
-    for title in catalog[artist]:
-      print "    {0}".format(title)
+    if ', ' in artist:
+      (lastName, firstName) = artist.split(', ', 1)
+      otherArtist = firstName + ' ' + lastName
+      if otherArtist in catalog:
+        mergeTitles(catalog, artist, catalog[otherArtist])
+        mergeTitles(catalog, otherArtist, catalog[artist])
+  return catalog
 
-catalog = readCatalog('spotlight.csv')
-dumpArtists(catalog)
+def writeArtist(destDir, artist, catalog):
+  for title in sorted(catalog[artist], key=str.lower):
+    print "    {0}".format(title)
+
+def dumpArtists(destDir, catalog):
+  print "{0} artists".format(len(catalog))
+  shutil.rmtree(destDir, True)
+  os.mkdir(destDir)
+
+  for artist in sorted(catalog.keys(), key=str.lower):
+    print "{0}".format(artist)
+    writeArtist(destDir, artist, catalog)
+
+catalog = mergeArtists(readCatalog('spotlight.csv'))
+destDir = 'C:/tmp/spotlight'
+dumpArtists(destDir, catalog)
