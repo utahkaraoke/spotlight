@@ -55,6 +55,26 @@ def dumpArtists(destDir, catalog):
     print "{0}".format(artist)
     writeArtist(destDir, artist, catalog)
 
+def keywordInContext(list):
+  kwic = {}
+  for item in list:
+    index = 0
+    itemWords = item.split(' ')
+    for index in range(len(itemWords)):
+      key = itemWords[index].lower()
+      if not key in kwic:
+        kwic[key] = []
+      entry = [ ' '.join(itemWords[0:index-1]) if index > 0 else '', itemWords[index], ' '.join(itemWords[index+1:]) if index+1 < len(itemWords) else '' ]
+      if not entry in kwic[key]:
+        kwic[key].append(entry)
+  return kwic
+
+def printArtistKeywordIndex(kwic):
+  for key in sorted(kwic.keys()):
+    for entry in kwic[key]:
+      print "{0:>32} {1} {2}".format(entry[0], entry[1], entry[2])
+
 catalog = mergeArtists(readCatalog('spotlight.csv'))
 destDir = 'C:/tmp/spotlight'
-dumpArtists(destDir, catalog)
+printArtistKeywordIndex(keywordInContext(sorted(catalog.keys(), key=str.lower)))
+# dumpArtists(destDir, catalog)
